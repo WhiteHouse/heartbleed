@@ -1,0 +1,3 @@
+name = Heartbleed
+description = An module for reseting passwords on login attempt.
+core = 6.x

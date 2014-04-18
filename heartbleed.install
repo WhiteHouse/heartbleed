@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Nodeapi example module's install and uninstall code.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function heartbleed_install() {
+  drupal_install_schema('heartbleed');
+
+  // Timestamp: 1397876400 = April 18th, 11:00PM
+  variable_set('heartbleed_deadline', 1397876400);
+
+  // Expire all existing sessions.
+  $query = "TRUNCATE table {sessions};";
+  $result = db_query($query);
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function heartbleed_uninstall() {
+  drupal_uninstall_schema('heartbleed');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function heartbleed_schema() {
+  $schema['heartbleed'] = array(
+  'description' => 'The table tracking login resets.',
+  'fields' => array(
+    'uid' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => t('User id for the loginreset table.'),
+    ),
+    'pw_reset_timestamp' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => t('The timestamp when the password was resest'),
+    ),
+  ),
+  'primary key' => array('uid'),
+  );
+  return $schema;
+}
