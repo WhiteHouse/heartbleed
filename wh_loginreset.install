@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * Nodeapi example module's install and uninstall code.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function wh_loginreset_install() {
+  drupal_install_schema('wh_loginreset');
+
+  // Timestamp: 1397851518 = April 18th, 4:05PM
+  variable_set('wh_loginreset_deadline', 1397851518);
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function wh_loginreset_uninstall() {
+  drupal_uninstall_schema('wh_loginreset');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function wh_loginreset_schema() {
+  $schema['wh_loginreset'] = array(
+  'description' => 'The table tracking login resets.',
+  'fields' => array(
+    'uid' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => t('User id for the loginreset table.'),
+    ),
+    'pw_reset_timestamp' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => t('The timestamp when the password was resest'),
+    ),
+  ),
+  'primary key' => array('uid'),
+  );
+  return $schema;
+}
+
