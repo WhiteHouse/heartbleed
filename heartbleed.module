@@ -5,7 +5,7 @@
  */
 
 /**
- *
+ * Implements hook_menu().
  */
 function heartbleed_menu() {
   $items = array();
@@ -19,20 +19,24 @@ function heartbleed_menu() {
 }
 
 /**
- *
+ * Implements hook_form_alter().
  */
 function heartbleed_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'user_login' || $form_id == 'user_login_block') {
+    // Add additional submit handler.
     $form['#submit'][] = 'heartbleed_login_submit';
-    dsm($form);
   }
 }
 
+/**
+ * Submit handler for heartbleed reset.
+ *
+ * Upon successful login, force logout and redirect user to /heartbleed page
+ * where they will receive instructions on how to reset their password.
+ */
 function heartbleed_login_submit($form_id, &$form_state) {
-  dsm($form_id, 'id submitted');
-  dsm($form_state, 'state');
-
-
+  // Check if user needs reset.
+  $force_reset = heartbleed_force_reset();
   // Copied from user_logout().
   global $user;
   watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
@@ -45,9 +49,43 @@ function heartbleed_login_submit($form_id, &$form_state) {
 
 }
 
+/**
+ * Page callback for /heartbleed.
+ */
 function heartbleed_page() {
   drupal_set_message(t('HEARTBLEED: Check your email for a password reset link.'), 'error');
-
   module_load_include('inc', 'user', 'user.pages');
   return drupal_get_form('user_pass');
+}
+
+/**
+ * Check if user needs to reset password.
+ */
+function heartbleed_force_reset() {
+  global $user;
+
+  // Assume password needs to be reset until we determine otherwise.
+  $needs_reset = TRUE;
+
+  // Default April 7, 2014.
+  $rest_required_after = variable_get('heartbleed_require_reset_after', 1396828800);
+
+  // Do we know when user last reset password?
+    // If no, force reset.
+
+  // Was pass reset after $rest_required_after?
+    // If no, force reset.
+    // If yes, don't force reset.
+ 
+
+  return $needs_reset;
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function heartbleed_user_update(&$edit, $account, $category) {
+
+  // Is user updating password? If so, log event in heartbleed table.
+
 }
