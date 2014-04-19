@@ -1,0 +1,27 @@
+<?php
+/**
+ *
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function heartbleed_schema() {
+  $schema['heartbleed'] = array(
+    'description' => '',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'user id',
+        'type' => int,
+        'unsigned' => TRUE, 
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+    ),
+    'unique keys' => array(
+      'uid' => array('uid'),
+    ),
+  );
+}

@@ -1,0 +1,53 @@
+<?php
+/**
+ * @file
+ * Heartbleed module.
+ */
+
+/**
+ *
+ */
+function heartbleed_menu() {
+  $items = array();
+
+  $items['heartbleed'] = array(
+    'page callback' => 'heartbleed_page',
+    'access arguments' => array('access content'),
+  );
+
+  return $items;
+}
+
+/**
+ *
+ */
+function heartbleed_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'user_login' || $form_id == 'user_login_block') {
+    $form['#submit'][] = 'heartbleed_login_submit';
+    dsm($form);
+  }
+}
+
+function heartbleed_login_submit($form_id, &$form_state) {
+  dsm($form_id, 'id submitted');
+  dsm($form_state, 'state');
+
+
+  // Copied from user_logout().
+  global $user;
+  watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
+  module_invoke_all('user_logout', $user);
+  // Destroy the current session, and reset $user to the anonymous user.
+  session_destroy();
+  // Trick Drupal, to override destination where set.
+  $_GET['destination'] = 'heartbleed';
+  drupal_goto('heartbleed');
+
+}
+
+function heartbleed_page() {
+  drupal_set_message(t('HEARTBLEED: Check your email for a password reset link.'), 'error');
+
+  module_load_include('inc', 'user', 'user.pages');
+  return drupal_get_form('user_pass');
+}
