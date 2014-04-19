@@ -1,7 +1,10 @@
 <?php
 /**
- *
+ * Implements hook_install().
  */
+function heartbleed_install() {
+   db_truncate('sessions')->execute();  
+}
 
 /**
  * Implements hook_schema().
