@@ -26,15 +26,8 @@ function heartbleed_menu() {
 }
 
 /**
- * Implements hook_form_alter().
+ * Admin config form.
  */
-function heartbleed_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'user_login' || $form_id == 'user_login_block') {
-    // Add additional submit handler.
-    $form['#submit'][] = 'heartbleed_login_submit';
-  }
-}
-
 function heartbleed_admin_form($form, &$form_state) {
   $form = array();
 
@@ -52,6 +45,39 @@ function heartbleed_admin_form($form, &$form_state) {
   );
 
   return system_settings_form($form);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function heartbleed_form_alter(&$form, &$form_state, $form_id) {
+
+  // Hook into user login forms to add our submit handler after user module's
+  // submit handler.
+  if ($form_id == 'user_login' || $form_id == 'user_login_block') {
+    $form['#submit'][] = 'heartbleed_login_submit';
+  }
+
+  // Alter user_pass form to display heartbleed info if we're on heartbleed
+  // path. If we're not on heartbleed page (e.g. if we're on the standard
+  // user/password page) do nothing.
+  if ($form_id == 'user_pass') {
+    $args = arg();
+    $path = "{$args[0]}/{$args[1]}";
+    if ($path == 'user/heartbleed') {
+      // We're on heartbleed page. Add heartbleed info to form.
+      $form['heartbleed_message'] = array(
+        '#type' => 'item',
+        '#title' => t('Please reset your password'),
+        '#description' => variable_get('heartbleed_message'),
+        '#weight' => 0,
+        '#prefix' => '<div class="messages warning">',
+        '#suffix' => '</div>',
+      );
+    }
+
+  }
+
 }
 
 /**
@@ -80,11 +106,12 @@ function heartbleed_login_submit($form_id, &$form_state) {
 }
 
 /**
- * Page callback for /heartbleed.
+ * Page callback at user/heartbleed. See hook_menu above.
+ *
+ * This looks just like user/password, with some extra info included in the form
+ * by a form_alter.
  */
 function heartbleed_page() {
-  $message = variable_get('heartbleed_message', 'Please reset your password.  More information: http://heartbleed.com/');
-  drupal_set_message(t($message), 'error');
   module_load_include('inc', 'user', 'user.pages');
   return drupal_get_form('user_pass');
 }
