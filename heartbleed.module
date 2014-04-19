@@ -38,10 +38,10 @@ function heartbleed_form_alter(&$form, &$form_state, $form_id) {
 function heartbleed_admin_form($form, &$form_state) {
   $form = array();
 
-  $form['heartbleed_require_reset_after'] = array(
+  $form['heartbleed_global_password_reset_date'] = array(
     '#type' => 'textfield',
     '#title' => t('TODO timestamp name'),
-    '#default_value' => variable_get('heartbleed_require_reset_after', 1396828800),
+    '#default_value' => variable_get('heartbleed_global_password_reset_date', 1396828800),
     '#description' => t('Look up unix timestamp !here', array('!here' => url('http://unixtimestamp.com/'))),
   );
   $form['heartbleed_message'] = array(
@@ -95,10 +95,10 @@ function heartbleed_page() {
 function heartbleed_force_reset() {
   global $user;
   // Default April 7, 2014.
-  $rest_required_after = variable_get('heartbleed_require_reset_after', 1396828800);
+  $heartbleed_global_password_reset_date = variable_get('heartbleed_global_password_reset_date', 1396828800);
   // Last time password was reset?
-  $last_reset = heartbleed_get_last_pass_update($user->uid);
-  return ($last_reset > $rest_required_after) ? TRUE : FALSE;
+  $last_password_reset_date = heartbleed_get_last_pass_update($user->uid);
+  return ($last_password_reset_date < $heartbleed_global_password_reset_date) ? TRUE : FALSE;
 }
 
 /**
@@ -129,7 +129,7 @@ function heartbleed_user_update(&$edit, $account, $category) {
  *   Timestamp for when user last reset pass if availble. False if not.
  */
 function heartbleed_get_last_pass_update($uid) {
-  $query = db_query('SELECT * FROM {heartbleed} WHERE uid = :uid', 
+  $query = db_query('SELECT * FROM {heartbleed} WHERE uid = :uid',
     array(':uid' => $uid));
   $result = $query->fetchAll();
   if (count($result) < 1) {
@@ -143,7 +143,7 @@ function heartbleed_get_last_pass_update($uid) {
   else {
     // Something is wrong.
     $pass_last_updated = 0;
-    watchdog('heartbleed', t('Something is wrong. The same uid is in the= heartbleed table more than once.'), WATCHDOG_ERROR);  
+    watchdog('heartbleed', t('Something is wrong. The same uid is in the= heartbleed table more than once.'), WATCHDOG_ERROR);
   }
 
   return $pass_last_updated;
@@ -175,7 +175,7 @@ function heartbleed_pass_reset($uid, $timestamp, $hashed_pass) {
   $users = user_load_multiple(array($uid), array('status' => '1'));
   $account = reset($users);
   if ($hashed_pass == user_pass_rehash($account->pass, $timestamp, $account->login)) {
-    
+
     // It's a legitimate request. Update last_reset value in heartbleed table.
     db_query('');
   }
