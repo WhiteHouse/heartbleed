@@ -29,7 +29,7 @@ function heartbleed_menu() {
 function heartbleed_admin_form($form, &$form_state) {
   $form = array();
 
-  $form['heartbleed_require_reset_after'] = array(
+  $form['heartbleed_deadline'] = array(
     '#type' => 'textfield',
     '#title' => t('TODO timestamp name'),
     '#default_value' => variable_get('heartbleed_deadline', 1397876400),
