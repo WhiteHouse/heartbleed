@@ -89,10 +89,16 @@ function heartbleed_force_reset() {
  * Implements hook_user_update().
  */
 function heartbleed_user_update(&$edit, $account, $category) {
+  global $user;
   // Is user updating password? If so, log event in heartbleed table.
-  dsm($edit, 'edit');
-  dsm($account, 'account');
-  dsm($category, 'category');
+  if (isset($edit['pass'])) {
+    dsm('updating');
+    // Pass property is only set when password is being update. Proceed.
+    db_merge('heartbleed', array(
+      'uid' => $user->uid,
+      'pass_last_updated' => time(),
+    ));
+  }
 }
 
 

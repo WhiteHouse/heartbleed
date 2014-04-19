@@ -15,7 +15,7 @@ function heartbleed_schema() {
         'type' => 'int',
         'unsigned' => TRUE, 
       ),
-      'last_reset' => array(
+      'pass_last_updated' => array(
         'description' => 'user id',
         'type' => 'int',
         'unsigned' => TRUE, 
