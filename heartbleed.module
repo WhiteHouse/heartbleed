@@ -46,7 +46,10 @@ function heartbleed_form_alter(&$form, &$form_state, $form_id) {
  */
 function heartbleed_login_submit($form_id, &$form_state) {
   // Check if user needs reset.
-  $force_reset = heartbleed_force_reset();
+  if (!$force_reset = heartbleed_force_reset()) {
+    // Nothing to do here.
+    return;
+  }
   // Copied from user_logout().
   global $user;
   watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
@@ -95,9 +98,12 @@ function heartbleed_force_reset() {
  * Implements hook_user_update().
  */
 function heartbleed_user_update(&$edit, $account, $category) {
-
   // Is user updating password? If so, log event in heartbleed table.
+  dsm($edit, 'edit');
+  dsm($account, 'account');
+  dsm($category, 'category');
 }
+
 
 /**
  * Provide last password reset timestamp.
@@ -126,6 +132,7 @@ function heartbleed_pass_reset($uid, $timestamp, $hashed_pass) {
   if ($hashed_pass == user_pass_rehash($account->pass, $timestamp, $account->login)) {
     
     // It's a legitimate request. Update last_reset value in heartbleed table.
+    db_query('');
   }
   // Now proceed to regular password reset page we took over from user module.
   return drupal_get_form('user_pass_reset', $uid, $timestamp, $hashed_pass);
