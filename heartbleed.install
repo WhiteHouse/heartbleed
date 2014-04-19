@@ -3,6 +3,7 @@
  * Implements hook_install().
  */
 function heartbleed_install() {
+   // When module is enabled, all users get logged out.
    db_truncate('sessions')->execute();  
 }
 
