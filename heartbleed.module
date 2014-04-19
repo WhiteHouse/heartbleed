@@ -10,7 +10,7 @@
 function heartbleed_menu() {
   $items = array();
 
-  $items['heartbleed'] = array(
+  $items['user/heartbleed'] = array(
     'page callback' => 'heartbleed_page',
     'access arguments' => array('access content'),
   );
