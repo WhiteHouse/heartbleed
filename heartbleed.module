@@ -36,7 +36,8 @@ function heartbleed_form_alter(&$form, &$form_state, $form_id) {
  */
 function heartbleed_login_submit($form_id, &$form_state) {
   // Check if user needs reset.
-  if (!$force_reset = heartbleed_force_reset()) {
+  $force_reset = heartbleed_force_reset();
+  if (!$force_reset) {
     // Nothing to do here.
     return;
   }
@@ -67,37 +68,27 @@ function heartbleed_page() {
  */
 function heartbleed_force_reset() {
   global $user;
-
-  // Assume password needs to be reset until we determine otherwise.
-  $needs_reset = TRUE;
-
   // Default April 7, 2014.
   $rest_required_after = variable_get('heartbleed_require_reset_after', 1396828800);
-
-  // Do we know when user last reset password?
-    // If no, force reset.
-
-  // Was pass reset after $rest_required_after?
-    // If no, force reset.
-    // If yes, don't force reset.
- 
-
-  return $needs_reset;
+  // Last time password was reset?
+  $last_reset = heartbleed_get_last_pass_update($user->uid);
+  return ($last_reset > $rest_required_after) ? TRUE : FALSE;
 }
 
 /**
  * Implements hook_user_update().
  */
 function heartbleed_user_update(&$edit, $account, $category) {
-  global $user;
   // Is user updating password? If so, log event in heartbleed table.
   if (isset($edit['pass'])) {
-    dsm('updating');
     // Pass property is only set when password is being update. Proceed.
-    db_merge('heartbleed', array(
-      'uid' => $user->uid,
-      'pass_last_updated' => time(),
-    ));
+    db_merge('heartbleed')
+      ->key(array('uid' => $account->uid))
+      ->fields(array(
+        'uid' => $account->uid,
+        'pass_last_updated' => time(),
+      ))
+      ->execute();
   }
 }
 
@@ -108,15 +99,28 @@ function heartbleed_user_update(&$edit, $account, $category) {
  * @param int $uid
  *   User id.
  *
- * @return int|bool
+ * @return int
  *   Timestamp for when user last reset pass if availble. False if not.
  */
-function heartbleed_get_last_reset($uid) {
+function heartbleed_get_last_pass_update($uid) {
   $query = db_query('SELECT * FROM {heartbleed} WHERE uid = :uid', 
     array(':uid' => $uid));
-  $query->exec();
-  $query->fetchAssoc();
-  dsm($query);
+  $result = $query->fetchAll();
+  if (count($result) < 1) {
+    // No results. User hasn't updated password since Heartbleed was installed.
+    $pass_last_updated = 0;
+  }
+  elseif (count($result) == 1) {
+    // Return pass_last_updated timestamp.
+    $pass_last_updated = $result[0]->pass_last_updated;
+  }
+  else {
+    // Something is wrong.
+    $pass_last_updated = 0;
+    watchdog('heartbleed', t('Something is wrong. The same uid is in the= heartbleed table more than once.', WATCHDOG_ERROR),  
+  }
+
+  return $pass_last_updated;
 }
 
 /******************************************************************************

@@ -13,15 +13,17 @@ function heartbleed_schema() {
       'uid' => array(
         'description' => 'user id',
         'type' => 'int',
-        'unsigned' => TRUE, 
+        'not null' => TRUE,
+        'default' => 0,
       ),
       'pass_last_updated' => array(
         'description' => 'user id',
         'type' => 'int',
-        'unsigned' => TRUE, 
+        'not null' => TRUE,
+        'default' => 0,
       ),
     ),
-    'primary key' => array(
+    'unique key' => array(
       'uid' => array('uid'),
     ),
   );
