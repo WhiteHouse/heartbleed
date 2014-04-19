@@ -15,8 +15,13 @@ function heartbleed_schema() {
         'type' => 'int',
         'unsigned' => TRUE, 
       ),
+      'last_reset' => array(
+        'description' => 'user id',
+        'type' => 'int',
+        'unsigned' => TRUE, 
+      ),
     ),
-    'indexes' => array(
+    'primary key' => array(
       'uid' => array('uid'),
     ),
   );

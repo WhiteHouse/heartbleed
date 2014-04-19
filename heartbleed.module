@@ -19,6 +19,16 @@ function heartbleed_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function heartbleed_menu_alter(&$items) {
+  // Take over user reset so we can effectively log the event. There's no way
+  // to tell otherwise (via hook_user_update) that the user is resetting their
+  // password.
+  $items['user/reset/%/%/%']['page callback'] = 'heartbleed_pass_reset';
+}
+
+/**
  * Implements hook_form_alter().
  */
 function heartbleed_form_alter(&$form, &$form_state, $form_id) {
@@ -87,5 +97,36 @@ function heartbleed_force_reset() {
 function heartbleed_user_update(&$edit, $account, $category) {
 
   // Is user updating password? If so, log event in heartbleed table.
+}
 
+/**
+ * Provide last password reset timestamp.
+ *
+ * @param int $uid
+ *   User id.
+ *
+ * @return int|bool
+ *   Timestamp for when user last reset pass if availble. False if not.
+ */
+function heartbleed_get_last_reset($uid) {
+  $query = db_query('SELECT * FROM {heartbleed} WHERE uid = :uid', 
+    array(':uid' => $uid));
+  $query->exec();
+  $query->fetchAssoc();
+  dsm($query);
+}
+
+/**
+ * Callback taking over user/reset/%/%/%.
+ */
+function heartbleed_pass_reset($uid, $timestamp, $hashed_pass) {
+  // Use logic from user.pages.inc to verify legitimate reset request.
+  $users = user_load_multiple(array($uid), array('status' => '1'));
+  $account = reset($users);
+  if ($hashed_pass == user_pass_rehash($account->pass, $timestamp, $account->login)) {
+    
+    // It's a legitimate request. Update last_reset value in heartbleed table.
+  }
+  // Now proceed to regular password reset page we took over from user module.
+  return drupal_get_form('user_pass_reset', $uid, $timestamp, $hashed_pass);
 }
