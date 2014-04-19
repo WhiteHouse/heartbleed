@@ -15,6 +15,13 @@ function heartbleed_menu() {
     'access arguments' => array('access content'),
   );
 
+  $items['admin/config/people/heartbleed'] = array(
+    'title' => 'Heartbleed',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('heartbleed_admin_form'),
+    'access arguments' => array('administer users'),
+  );
+
   return $items;
 }
 
@@ -26,6 +33,25 @@ function heartbleed_form_alter(&$form, &$form_state, $form_id) {
     // Add additional submit handler.
     $form['#submit'][] = 'heartbleed_login_submit';
   }
+}
+
+function heartbleed_admin_form($form, &$form_state) {
+  $form = array();
+
+  $form['heartbleed_require_reset_after'] = array(
+    '#type' => 'textfield',
+    '#title' => t('TODO timestamp name'),
+    '#default_value' => variable_get('heartbleed_require_reset_after', 1396828800),
+    '#description' => t('Look up unix timestamp !here', array('!here' => url('http://unixtimestamp.com/'))),
+  );
+  $form['heartbleed_message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Heartbleed Message'),
+    '#description' => t('Message to be displayed to users'),
+    '#default_value' => variable_get('heartbleed_message', t('Please reset your password. More information: http://heartbleed.com/')),
+  );
+
+  return system_settings_form($form);
 }
 
 /**
@@ -49,16 +75,16 @@ function heartbleed_login_submit($form_id, &$form_state) {
   // Destroy the current session, and reset $user to the anonymous user.
   session_destroy();
   // Trick Drupal, to override destination where set.
-  $_GET['destination'] = 'heartbleed';
-  drupal_goto('heartbleed');
-
+  $_GET['destination'] = 'user/heartbleed';
+  drupal_goto('user/heartbleed');
 }
 
 /**
  * Page callback for /heartbleed.
  */
 function heartbleed_page() {
-  drupal_set_message(t('HEARTBLEED: Check your email for a password reset link.'), 'error');
+  $message = variable_get('heartbleed_message', 'Please reset your password.  More information: http://heartbleed.com/');
+  drupal_set_message(t($message), 'error');
   module_load_include('inc', 'user', 'user.pages');
   return drupal_get_form('user_pass');
 }
@@ -117,7 +143,7 @@ function heartbleed_get_last_pass_update($uid) {
   else {
     // Something is wrong.
     $pass_last_updated = 0;
-    watchdog('heartbleed', t('Something is wrong. The same uid is in the= heartbleed table more than once.', WATCHDOG_ERROR),  
+    watchdog('heartbleed', t('Something is wrong. The same uid is in the= heartbleed table more than once.'), WATCHDOG_ERROR);  
   }
 
   return $pass_last_updated;
