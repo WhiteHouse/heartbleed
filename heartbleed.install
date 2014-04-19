@@ -20,7 +20,7 @@ function heartbleed_schema() {
         'default' => 0,
       ),
       'pass_last_updated' => array(
-        'description' => 'user id',
+        'description' => 'last time we know of user updating password',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,

@@ -4,6 +4,9 @@
  * Heartbleed module.
  */
 
+// Default reset date: April 7, 2014
+define('HEARTBLEED_DEFAULT_RESET_DATE', 1396828800);
+
 /**
  * Implements hook_menu().
  */
@@ -31,17 +34,19 @@ function heartbleed_menu() {
 function heartbleed_admin_form($form, &$form_state) {
   $form = array();
 
-  $form['heartbleed_global_password_reset_date'] = array(
+  $form['heartbleed_password_reset_date'] = array(
     '#type' => 'textfield',
-    '#title' => t('TODO timestamp name'),
-    '#default_value' => variable_get('heartbleed_global_password_reset_date', 1396828800),
-    '#description' => t('Look up unix timestamp !here', array('!here' => url('http://unixtimestamp.com/'))),
+    '#title' => t('Password reset date'),
+    '#default_value' => variable_get('heartbleed_password_reset_date', HEARTBLEED_DEFAULT_RESET_DATE),
+    '#description' =>  t('Any users that existed in the database BEFORE this date will be prompted to update their password next time they log in. Users will receive this prompt until they update their password. Look up the unix timestamp here: !here', array('!here' => l('unixtimestamp.com', 'http://unixtimestamp.com/'))),
   );
+
   $form['heartbleed_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Heartbleed Message'),
     '#description' => t('Message to be displayed to users'),
-    '#default_value' => variable_get('heartbleed_message', t('Please reset your password. More information: http://heartbleed.com/')),
+    '#default_value' => variable_get('heartbleed_message', t('Please reset your password. More information: !here and !here2.',
+      array('!here' => l('heartbleed.com', 'http://heartbleed.com/'), '!here2' => l('dhs.gov/stopthinkconnect-heartbleed', 'http://www.dhs.gov/stopthinkconnect-heartbleed')))),
   );
 
   return system_settings_form($form);
@@ -100,7 +105,8 @@ function heartbleed_login_submit($form_id, &$form_state) {
   module_invoke_all('user_logout', $user);
   // Destroy the current session, and reset $user to the anonymous user.
   session_destroy();
-  // Trick Drupal, to override destination where set.
+  // Do not obey Drupal's destination if set. Otherwise user logged out and
+  // redirected and they don't know why or how to fix it.
   $_GET['destination'] = 'user/heartbleed';
   drupal_goto('user/heartbleed');
 }
@@ -118,14 +124,30 @@ function heartbleed_page() {
 
 /**
  * Check if user needs to reset password.
+ *
+ * @return bool
+ *   Password needs reset? True or false.
  */
 function heartbleed_force_reset() {
   global $user;
-  // Default April 7, 2014.
-  $heartbleed_global_password_reset_date = variable_get('heartbleed_global_password_reset_date', 1396828800);
-  // Last time password was reset?
-  $last_password_reset_date = heartbleed_get_last_pass_update($user->uid);
-  return ($last_password_reset_date < $heartbleed_global_password_reset_date) ? TRUE : FALSE;
+
+  // Get password reset date.
+  $password_reset_date = variable_get('heartbleed_password_reset_date', HEARTBLEED_DEFAULT_RESET_DATE);
+
+  // Get date user's password was last modified, if we know this information.
+  $last_pass_update = heartbleed_get_last_pass_update($user->uid);
+
+  if ($user->created > $password_reset_date) {
+    // If user was created AFTER password reset date, do not force reset.
+    $needs_reset = FALSE;
+  }
+  elseif ($last_pass_update < $password_reset_date) {
+    // If user was created BEFORE reset date AND the password has not been reset
+    // since the reset date, user needs to reset password.
+    $needs_reset = TRUE;
+  }
+
+  return $needs_reset;
 }
 
 /**
