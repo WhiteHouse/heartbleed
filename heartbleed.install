@@ -12,16 +12,14 @@ function heartbleed_schema() {
     'fields' => array(
       'uid' => array(
         'description' => 'user id',
-        'type' => int,
+        'type' => 'int',
         'unsigned' => TRUE, 
-        'not null' => TRUE,
       ),
     ),
     'indexes' => array(
       'uid' => array('uid'),
     ),
-    'unique keys' => array(
-      'uid' => array('uid'),
-    ),
   );
+
+  return $schema;
 }
