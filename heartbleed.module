@@ -19,16 +19,6 @@ function heartbleed_menu() {
 }
 
 /**
- * Implements hook_menu_alter().
- */
-function heartbleed_menu_alter(&$items) {
-  // Take over user reset so we can effectively log the event. There's no way
-  // to tell otherwise (via hook_user_update) that the user is resetting their
-  // password.
-  $items['user/reset/%/%/%']['page callback'] = 'heartbleed_pass_reset';
-}
-
-/**
  * Implements hook_form_alter().
  */
 function heartbleed_form_alter(&$form, &$form_state, $form_id) {
@@ -50,6 +40,7 @@ function heartbleed_login_submit($form_id, &$form_state) {
     // Nothing to do here.
     return;
   }
+
   // Copied from user_logout().
   global $user;
   watchdog('user', 'Session closed for %name.', array('%name' => $user->name));
@@ -122,9 +113,27 @@ function heartbleed_get_last_reset($uid) {
   dsm($query);
 }
 
+/******************************************************************************
+ * Taking over user/reset below is probably too aggressive. Leaving code there
+ * commented out in case it's helpful to revisit later.
+ *****************************************************************************/
+
+/**
+ * Implements hook_menu_alter().
+ */
+/*
+function heartbleed_menu_alter(&$items) {
+  // Take over user reset so we can effectively log the event. There's no way
+  // to tell otherwise (via hook_user_update) that the user is resetting their
+  // password.
+  $items['user/reset/%/%/%']['page callback'] = 'heartbleed_pass_reset';
+}
+// */
+
 /**
  * Callback taking over user/reset/%/%/%.
  */
+/*
 function heartbleed_pass_reset($uid, $timestamp, $hashed_pass) {
   // Use logic from user.pages.inc to verify legitimate reset request.
   $users = user_load_multiple(array($uid), array('status' => '1'));
@@ -137,3 +146,4 @@ function heartbleed_pass_reset($uid, $timestamp, $hashed_pass) {
   // Now proceed to regular password reset page we took over from user module.
   return drupal_get_form('user_pass_reset', $uid, $timestamp, $hashed_pass);
 }
+// */
