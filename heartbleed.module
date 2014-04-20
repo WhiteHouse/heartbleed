@@ -69,6 +69,7 @@ function heartbleed_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'user_pass') {
     $args = arg();
     $path = "{$args[0]}/{$args[1]}";
+    $path = strtolower("{$args[0]}/{$args[1]}");
     if ($path == 'user/heartbleed') {
       // We're on heartbleed page. Add heartbleed info to form.
       $form['heartbleed_message'] = array(
