@@ -27,6 +27,8 @@ function heartbleed_install() {
  */
 function heartbleed_uninstall() {
   drupal_uninstall_schema('heartbleed');
+  variable_del('heartbleed_password_reset_date');
+  variable_del('heartbleed_message');
 }
 
 /**
