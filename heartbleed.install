@@ -9,12 +9,17 @@
  * Implements hook_install().
  */
 function heartbleed_install() {
+  drupal_install_schema('heartbleed');
+
   // When module is enabled, all users get logged out.
   // Expire all existing sessions.
   $query = "TRUNCATE table {sessions};";
   $result = db_query($query);
 
-  drupal_install_schema('heartbleed');
+  variable_set('heartbleed_password_reset_date', 1396828800);
+  variable_set('heartbleed_message',  t('Please reset your password. More information: !more and !more2.',
+    array('!more' => '<a href="http://heartbleed.com/">heartbleed.com</a>',
+          '!more2' => '<a href="http://www.dhs.gov/stopthinkconnect-heartbleed">dhs.gov/stopthinkconnect-heartbleed</a>.')));
 }
 
 /**
