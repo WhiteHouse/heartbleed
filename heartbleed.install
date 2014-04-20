@@ -13,6 +13,14 @@ function heartbleed_install() {
 }
 
 /**
+ * Implements hook_uninstall().
+ */
+function heartbleed_uninstall() {
+  variable_del('heartbleed_password_reset_date');
+  variable_del('heartbleed_message');
+}
+
+/**
  * Implements hook_schema().
  */
 function heartbleed_schema() {
