@@ -1,10 +1,27 @@
 <?php
+
+/**
+ * @file
+ * Heartbleed module's install and uninstall code.
+ */
+
 /**
  * Implements hook_install().
  */
 function heartbleed_install() {
-   // When module is enabled, all users get logged out.
-   db_truncate('sessions')->execute();  
+  // When module is enabled, all users get logged out.
+  // Expire all existing sessions.
+  $query = "TRUNCATE table {sessions};";
+  $result = db_query($query);
+
+  drupal_install_schema('heartbleed');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function heartbleed_uninstall() {
+  drupal_uninstall_schema('heartbleed');
 }
 
 /**
@@ -12,7 +29,7 @@ function heartbleed_install() {
  */
 function heartbleed_schema() {
   $schema['heartbleed'] = array(
-    'description' => '',
+    'description' => 'Heartbleed tracks when users update passwords here.',
     'fields' => array(
       'uid' => array(
         'description' => 'user id',
