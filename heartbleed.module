@@ -155,7 +155,7 @@ function heartbleed_force_reset() {
  */
 function heartbleed_user_update(&$edit, $account, $category) {
   // Is user updating password? If so, log event in heartbleed table.
-  if (isset($edit['pass'])) {
+  if (!empty($edit['pass'])) {
     // Pass property is only set when password is being update. Proceed.
     db_merge('heartbleed')
       ->key(array('uid' => $account->uid))
