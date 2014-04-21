@@ -9,8 +9,8 @@ and I want my Drupal site users to reset their passwords. There's no indication 
 Here's the user experience for an authenticated user on example.com after Heartbleed
 module is installed:
 
- - (I remember my password.) Next time I type in my username and password to log into example.com, I'm immediately
-   redirected to example.com/user/heartbleed. Here I see a note
+ - (I remember my password.) Next time I log into example.com, I'm immediately
+   logged out and redirected to example.com/user/heartbleed. Here I see a note
    informing me about Heartbleed and instructing me to enter my email address to
    request a password reset link be sent to my email.
  - (I forgot my password.) Nothing changes. When I go to example.com to log in,
