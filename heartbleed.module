@@ -209,38 +209,3 @@ function heartbleed_get_last_pass_update($uid) {
   // If no results, cast as integer and return 0.
   return (int) $pass_last_updated;
 }
-
-/******************************************************************************
- * Taking over user/reset below is probably too aggressive. Leaving code there
- * commented out in case it's helpful to revisit later.
- *****************************************************************************/
-
-/**
- * Implements hook_menu_alter().
- */
-/*
-function heartbleed_menu_alter(&$items) {
-  // Take over user reset so we can effectively log the event. There's no way
-  // to tell otherwise (via hook_user_update) that the user is resetting their
-  // password.
-  $items['user/reset/%/%/%']['page callback'] = 'heartbleed_pass_reset';
-}
-// */
-
-/**
- * Callback taking over user/reset/%/%/%.
- */
-/*
-function heartbleed_pass_reset($uid, $timestamp, $hashed_pass) {
-  // Use logic from user.pages.inc to verify legitimate reset request.
-  $users = user_load_multiple(array($uid), array('status' => '1'));
-  $account = reset($users);
-  if ($hashed_pass == user_pass_rehash($account->pass, $timestamp, $account->login)) {
-
-    // It's a legitimate request. Update last_reset value in heartbleed table.
-    db_query('');
-  }
-  // Now proceed to regular password reset page we took over from user module.
-  return drupal_get_form('user_pass_reset', $uid, $timestamp, $hashed_pass);
-}
-// */
