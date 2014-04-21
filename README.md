@@ -43,11 +43,11 @@ Install & Configure
         admin/user/heartbleed          (Drupal 6)
         admin/config/people/heartbleed (Drupal 7)
 
-      Password reset date: All users created before the reset date
+      **Password reset date**: All users created before the reset date
       will be required to change their password once after the reset date. (If
       you change the date after the module is enabled, password resets that
       happened before the new date won't count. Users will have to reset their
       passwords again.)
 
-      Heartbleed message: Customize the message displayed to your users about
+      **Heartbleed message**: Customize the message displayed to your users about
       why they are being required to reset their passwords.
