@@ -75,7 +75,7 @@ function heartbleed_form_alter(&$form, &$form_state, $form_id) {
       $form['heartbleed_message'] = array(
         '#type' => 'item',
         '#title' => t('Please reset your password'),
-        '#description' => variable_get('heartbleed_message'),
+        '#description' => variable_get('heartbleed_message', ''),
         '#weight' => 0,
         '#prefix' => '<div class="messages warning">',
         '#suffix' => '</div>',
