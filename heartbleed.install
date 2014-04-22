@@ -1,15 +1,21 @@
 <?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Heartbleed module.
+ */
+
 /**
  * Implements hook_install().
  */
 function heartbleed_install() {
-   // When module is enabled, all users get logged out.
-   db_truncate('sessions')->execute();  
+  $t = get_t();
+
+  // When module is enabled, all users get logged out.
+  db_truncate('sessions')->execute();
 
   variable_set('heartbleed_password_reset_date', 1396828800);
-  variable_set('heartbleed_message',  t('Please reset your password. More information: !more and !more2.',
-    array('!more' => '<a href="http://heartbleed.com/">heartbleed.com</a>',
-          '!more2' => '<a href="http://www.dhs.gov/stopthinkconnect-heartbleed">dhs.gov/stopthinkconnect-heartbleed</a>.')));
+  variable_set('heartbleed_message', $t('Please reset your password. More information: <a href="http://heartbleed.com/">heartbleed.com</a> and <a href="http://www.dhs.gov/stopthinkconnect-heartbleed">dhs.gov/stopthinkconnect-heartbleed</a>.'));
 }
 
 /**
