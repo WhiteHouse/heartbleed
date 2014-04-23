@@ -21,7 +21,7 @@ function heartbleed_install() {
   db_truncate('sessions')->execute();
 
   variable_set('heartbleed_password_reset_date', 1396828800);
-  variable_set('heartbleed_message', $t('Please reset your password. More information: <a href="http://heartbleed.com/">heartbleed.com</a> and <a href="http://www.dhs.gov/stopthinkconnect-heartbleed">dhs.gov/stopthinkconnect-heartbleed</a>.'));
+  variable_set('heartbleed_message', $t('Please reset your password. More information: <a href="http://heartbleed.com/">heartbleed.com</a> and <a href="@dhs">dhs.gov/stopthinkconnect-heartbleed</a>.', array('@heartbleed' => 'http://heartbleed.com/', '@dhs' => 'http://www.dhs.gov/stopthinkconnect-heartbleed')));
 }
 
 /**
