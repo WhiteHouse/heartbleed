@@ -41,14 +41,20 @@ function heartbleed_admin_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Password reset date'),
     '#default_value' => variable_get('heartbleed_password_reset_date', HEARTBLEED_DEFAULT_RESET_DATE),
-    '#description' => t('Any users that existed in the database BEFORE this date will be prompted to update their password next time they log in. Users will receive this prompt until they update their password. Look up the unix timestamp here: <a href="http://unixtimestamp.com/">unixtimestamp.com</a>.'),
+    '#description' => t('Any users that existed in the database BEFORE this date will be prompted to update their password next time they log in. Users will receive this prompt until they update their password. Look up the unix timestamp here: <a href="@unixtimestamp">unixtimestamp.com</a>.',
+      array('@unixtimestamp' => 'http://unixtimestamp.com/')),
   );
 
   $form['heartbleed_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Heartbleed Message'),
     '#description' => t('Message to be displayed to users'),
-    '#default_value' => variable_get('heartbleed_message', t('Please reset your password. More information: <a href="http://heartbleed.com/">heartbleed.com</a> and <a href="http://www.dhs.gov/stopthinkconnect-heartbleed">dhs.gov/stopthinkconnect-heartbleed</a>.')),
+    '#default_value' => variable_get('heartbleed_message', t('Please reset your password. More information: <a href="@heartbleed">@heartbleed-text</a> and <a href="@dhs">@dhs-text</a>.',
+      array(
+        '@heartbleed' => 'http://heartbleed.com/',
+        '@heartbleed-text' => 'heartbleed.com',
+        '@dhs' => 'http://www.dhs.gov/stopthinkconnect-heartbleed',
+        '@dhs-text' => 'dhs.gov/stopthinkconnect-heartbleed'))),
   );
 
   return system_settings_form($form);
