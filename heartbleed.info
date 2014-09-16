@@ -1,3 +1,10 @@
 name = Heartbleed
 description = Prompt users for password reset
 core = 7.x
+
+; Information added by Drupal.org packaging script on 2014-04-21
+version = "7.x-1.0"
+core = "7.x"
+project = "heartbleed"
+datestamp = "1398096531"
+
