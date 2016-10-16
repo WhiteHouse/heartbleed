@@ -189,7 +189,7 @@ function heartbleed_user_update(&$edit, $account, $category) {
  *   User id.
  *
  * @return int
- *   Timestamp for when user last reset pass if availble. False if not.
+ *   Timestamp for when user last reset pass if available. False if not.
  */
 function heartbleed_get_last_pass_update($uid) {
   $query = db_query('SELECT * FROM {heartbleed} WHERE uid = :uid', array(
